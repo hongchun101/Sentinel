@@ -49,6 +49,7 @@ import com.alibaba.csp.sentinel.spi.Spi;
 @Spi(isSingleton = false, order = Constants.ORDER_CLUSTER_BUILDER_SLOT)
 public class ClusterBuilderSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
 
+    // 用于存储资源的统计信息以及调用者信息 如该资源的RT,QPS,thread count等,这些信息将用作多维度限流 降级的依据
     /**
      * <p>
      * Remember that same resource({@link ResourceWrapper#equals(Object)}) will share

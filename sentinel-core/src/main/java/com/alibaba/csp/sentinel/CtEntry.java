@@ -37,6 +37,7 @@ class CtEntry extends Entry {
     protected Entry parent = null;
     protected Entry child = null;
 
+    // 调用链路
     protected ProcessorSlot<Object> chain;
     protected Context context;
     protected LinkedList<BiConsumer<Context, Entry>> exitHandlers;

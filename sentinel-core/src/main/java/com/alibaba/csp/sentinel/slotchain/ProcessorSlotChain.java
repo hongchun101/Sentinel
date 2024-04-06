@@ -21,6 +21,8 @@ package com.alibaba.csp.sentinel.slotchain;
  * @author qinan.qn
  */
 public abstract class ProcessorSlotChain extends AbstractLinkedProcessorSlot<Object> {
+    // Sentinel核心骨架 将不同的Slot按照顺序串在一起(责任链) 将不同的功能(限流 降级, 系统保护)
+    // 组合在一起 slotchain可以分为两部分 统计数据构建部分(statistic)和判断部分(ruler checking)
 
     /**
      * Add a processor to the head of this slot chain.

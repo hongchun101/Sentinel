@@ -55,7 +55,13 @@ import com.alibaba.csp.sentinel.slots.nodeselector.NodeSelectorSlot;
  * @see NodeSelectorSlot
  */
 public class Context {
+    // Context代表调用链路上下文 贯穿一次调用链路中所有的Entry.
+    // Context维持着入口节点(entranceNode) 本地调用链路的curNode 调用来源(origin)等信息
+    // Context名称就是调用链路入口名称
 
+    // Context 维持的方式：通过 ThreadLocal 传递，只有在入口 enter 的时候生效。
+    // 由于 Context 是通过 ThreadLocal 传递的，因此对于异步调用链路，线程切换的时候会丢掉 Context，
+    // 因此需要手动通过 ContextUtil.runOnContext(context, f) 来变换 context。
     /**
      * Context name.
      */

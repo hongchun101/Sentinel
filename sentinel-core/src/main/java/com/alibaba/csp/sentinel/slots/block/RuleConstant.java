@@ -23,6 +23,7 @@ import com.alibaba.csp.sentinel.node.IntervalProperty;
  */
 public final class RuleConstant {
 
+    // 限流实现方式 线程池和QPS两种
     public static final int FLOW_GRADE_THREAD = 0;
     public static final int FLOW_GRADE_QPS = 1;
 

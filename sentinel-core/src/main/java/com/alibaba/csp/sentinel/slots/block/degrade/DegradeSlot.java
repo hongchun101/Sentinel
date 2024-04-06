@@ -36,6 +36,7 @@ import com.alibaba.csp.sentinel.spi.Spi;
  */
 @Spi(order = Constants.ORDER_DEGRADE_SLOT)
 public class DegradeSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
+    // 通过统计信息以及预设的规则, 来做熔断降级
 
     @Override
     public void entry(Context context, ResourceWrapper resourceWrapper, DefaultNode node, int count,

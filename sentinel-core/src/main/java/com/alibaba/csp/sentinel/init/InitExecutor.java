@@ -43,13 +43,25 @@ public final class InitExecutor {
             return;
         }
         try {
+            // SPI加载所有的InitFunc
+            //1. MetricCallbackInit
+            //2. CommandCenterInitFunc
+            //3. HeartbeatSenderInitFunc
+            //4. ParamFlowStatisticSlotCallbackInit
             List<InitFunc> initFuncs = SpiLoader.of(InitFunc.class).loadInstanceListSorted();
             List<OrderWrapper> initList = new ArrayList<OrderWrapper>();
             for (InitFunc initFunc : initFuncs) {
                 RecordLog.info("[InitExecutor] Found init func: {}", initFunc.getClass().getCanonicalName());
+                // 对initFunc排序后加入initList中
                 insertSorted(initList, initFunc);
             }
+            // 排序后顺序
+            // CommandCenterInitFunc
+            // HeartbeatSenderInitFunc
+            // MetricCallbackInit
+            // ParamFlowStatisticSlotCallbackInit
             for (OrderWrapper w : initList) {
+                // 执行initFunc的init方法
                 w.func.init();
                 RecordLog.info("[InitExecutor] Executing {} with order {}",
                     w.func.getClass().getCanonicalName(), w.order);

@@ -47,7 +47,11 @@ public class DefaultController implements TrafficShapingController {
 
     @Override
     public boolean canPass(Node node, int acquireCount, boolean prioritized) {
+        // 拿到平均使用令牌数
         int curCount = avgUsedTokens(node);
+        // 如果请求令牌+已经使用令牌大于阈值
+        // 判断是否是否有优先级并且是通过QPS限流 如果不是直接return false
+        // 是的逻辑暂时不看
         if (curCount + acquireCount > count) {
             if (prioritized && grade == RuleConstant.FLOW_GRADE_QPS) {
                 long currentTime;

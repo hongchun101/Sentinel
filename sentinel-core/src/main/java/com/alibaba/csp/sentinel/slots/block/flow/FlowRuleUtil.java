@@ -90,6 +90,7 @@ public final class FlowRuleUtil {
         Map<K, Set<FlowRule>> tmpMap = new ConcurrentHashMap<>();
 
         for (FlowRule rule : list) {
+            // 校验规则是否合法
             if (!isValidRule(rule)) {
                 RecordLog.warn("[FlowRuleManager] Ignoring invalid flow rule when loading new flow rules: " + rule);
                 continue;
@@ -100,6 +101,7 @@ public final class FlowRuleUtil {
             if (StringUtil.isBlank(rule.getLimitApp())) {
                 rule.setLimitApp(RuleConstant.LIMIT_APP_DEFAULT);
             }
+            // 指定限流规则
             TrafficShapingController rater = generateRater(rule);
             rule.setRater(rater);
 
@@ -132,13 +134,17 @@ public final class FlowRuleUtil {
 
     private static TrafficShapingController generateRater(/*@Valid*/ FlowRule rule) {
         if (rule.getGrade() == RuleConstant.FLOW_GRADE_QPS) {
+            // 根据配置的controlBehavior选择对应的限流策略
             switch (rule.getControlBehavior()) {
                 case RuleConstant.CONTROL_BEHAVIOR_WARM_UP:
+                    // 预热
                     return new WarmUpController(rule.getCount(), rule.getWarmUpPeriodSec(),
                             ColdFactorProperty.coldFactor);
                 case RuleConstant.CONTROL_BEHAVIOR_RATE_LIMITER:
+                    // 流速
                     return new ThrottlingController(rule.getMaxQueueingTimeMs(), rule.getCount());
                 case RuleConstant.CONTROL_BEHAVIOR_WARM_UP_RATE_LIMITER:
+                    // 流速和预热
                     return new WarmUpRateLimiterController(rule.getCount(), rule.getWarmUpPeriodSec(),
                             rule.getMaxQueueingTimeMs(), ColdFactorProperty.coldFactor);
                 case RuleConstant.CONTROL_BEHAVIOR_DEFAULT:
@@ -146,6 +152,7 @@ public final class FlowRuleUtil {
                     // Default mode or unknown mode: default traffic shaping controller (fast-reject).
             }
         }
+        // 拒绝
         return new DefaultController(rule.getCount(), rule.getGrade());
     }
 

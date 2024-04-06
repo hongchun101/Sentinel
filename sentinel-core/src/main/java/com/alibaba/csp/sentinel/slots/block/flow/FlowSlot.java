@@ -138,6 +138,7 @@ import java.util.Collection;
  */
 @Spi(order = Constants.ORDER_FLOW_SLOT)
 public class FlowSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
+    // 用于根据预设的限流规则以及前面slot统计的状态 来进行流量控制
 
     private final FlowRuleChecker checker;
 

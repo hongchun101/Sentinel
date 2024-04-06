@@ -30,6 +30,7 @@ public class ParamFlowStatisticSlotCallbackInit implements InitFunc {
 
     @Override
     public void init() {
+        // 添加两个参数流通知回调
         StatisticSlotCallbackRegistry.addEntryCallback(ParamFlowStatisticEntryCallback.class.getName(),
             new ParamFlowStatisticEntryCallback());
         StatisticSlotCallbackRegistry.addExitCallback(ParamFlowStatisticExitCallback.class.getName(),

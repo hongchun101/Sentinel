@@ -52,6 +52,7 @@ public class ContextUtil {
     /**
      * Holds all {@link EntranceNode}. Each {@link EntranceNode} is associated with a distinct context name.
      */
+    // 持有所有的entranceNode 每个entranceNode都与一个不同context名称相关联
     private static volatile Map<String, DefaultNode> contextNameNodeMap = new HashMap<>();
 
     private static final ReentrantLock LOCK = new ReentrantLock();
@@ -59,6 +60,7 @@ public class ContextUtil {
 
     static {
         // Cache the entrance node for default context.
+        // 构建默认的EntranceNode
         initDefaultContext();
     }
 
@@ -112,13 +114,15 @@ public class ContextUtil {
     public static Context enter(String name, String origin) {
         if (Constants.CONTEXT_DEFAULT_NAME.equals(name)) {
             throw new ContextNameDefineException(
-                "The " + Constants.CONTEXT_DEFAULT_NAME + " can't be permit to defined!");
+                    "The " + Constants.CONTEXT_DEFAULT_NAME + " can't be permit to defined!");
         }
         return trueEnter(name, origin);
     }
 
     protected static Context trueEnter(String name, String origin) {
+        // context存储在threadLocal中
         Context context = contextHolder.get();
+        // 如果ThreadLocal中context为空
         if (context == null) {
             Map<String, DefaultNode> localCacheNameMap = contextNameNodeMap;
             DefaultNode node = localCacheNameMap.get(name);
@@ -165,7 +169,7 @@ public class ContextUtil {
         // Don't need to be thread-safe.
         if (shouldWarn) {
             RecordLog.warn("[SentinelStatusChecker] WARN: Amount of context exceeds the threshold "
-                + Constants.MAX_CONTEXT_NAME_SIZE + ". Entries in new contexts will NOT take effect!");
+                    + Constants.MAX_CONTEXT_NAME_SIZE + ". Entries in new contexts will NOT take effect!");
             shouldWarn = false;
         }
     }

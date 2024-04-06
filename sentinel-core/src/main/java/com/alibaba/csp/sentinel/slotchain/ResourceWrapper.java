@@ -27,9 +27,12 @@ import com.alibaba.csp.sentinel.util.AssertUtil;
  */
 public abstract class ResourceWrapper {
 
+    // 资源名称
     protected final String name;
 
+    // 标识流量入站和出站 主要是用作统计 默认为out
     protected final EntryType entryType;
+    // 资源类型
     protected final int resourceType;
 
     public ResourceWrapper(String name, EntryType entryType, int resourceType) {

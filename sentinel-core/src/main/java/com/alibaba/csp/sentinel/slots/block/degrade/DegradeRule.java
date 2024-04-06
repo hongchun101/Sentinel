@@ -45,6 +45,7 @@ import java.util.Objects;
  * @author jialiang.linjl
  * @author Eric Zhao
  */
+// 降级规则
 public class DegradeRule extends AbstractRule {
 
     public DegradeRule() {}

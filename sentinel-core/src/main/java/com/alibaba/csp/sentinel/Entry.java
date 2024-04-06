@@ -52,10 +52,13 @@ import com.alibaba.csp.sentinel.context.Context;
  * @see ContextUtil
  */
 public abstract class Entry implements AutoCloseable {
+    // 每一次资源调用都会创建一个Entry entry包含了资源名 curNode originNode信息
 
     protected static final Object[] OBJECTS0 = new Object[0];
 
+    // 资源创建时间
     private final long createTimestamp;
+    // 请求完成时间
     private long completeTimestamp;
 
     private Node curNode;

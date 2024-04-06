@@ -41,7 +41,7 @@ import com.alibaba.csp.sentinel.slots.block.BlockException;
  * <li>{@link ClusterNode}: total statistics of a cluster node of the resource ID.</li>
  * <li>Origin node: statistics of a cluster node from different callers/origins.</li>
  * <li>{@link DefaultNode}: statistics for specific resource name in the specific context.</li>
- * <li>Finally, the sum statistics of all entrances.</li>
+ * <li>Finally, th e sum statistics of all entrances.</li>
  * </ul>
  * </p>
  *
@@ -51,15 +51,20 @@ import com.alibaba.csp.sentinel.slots.block.BlockException;
 @Spi(order = Constants.ORDER_STATISTIC_SLOT)
 public class StatisticSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
 
+    // 用于记录,统计不同维度的runtime指标监控信息
+
     @Override
     public void entry(Context context, ResourceWrapper resourceWrapper, DefaultNode node, int count,
                       boolean prioritized, Object... args) throws Throwable {
         try {
             // Do some checking.
+            // 触发下一个slot的entry
             fireEntry(context, resourceWrapper, node, count, prioritized, args);
 
             // Request passed, add thread count and pass count.
+            // 如果能通过后面的slot 说明没有被限流或降级
             node.increaseThreadNum();
+            // 请求通过流控规则后需要记录下来
             node.addPassRequest(count);
 
             if (context.getCurEntry().getOriginNode() != null) {
@@ -79,6 +84,7 @@ public class StatisticSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
                 handler.onPass(context, resourceWrapper, node, count, args);
             }
         } catch (PriorityWaitException ex) {
+            // 先处理优先级等待异常
             node.increaseThreadNum();
             if (context.getCurEntry().getOriginNode() != null) {
                 // Add count for origin node.

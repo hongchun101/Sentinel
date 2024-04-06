@@ -48,6 +48,8 @@ public class CtSph implements Sph {
      * Same resource({@link ResourceWrapper#equals(Object)}) will share the same
      * {@link ProcessorSlotChain}, no matter in which {@link Context}.
      */
+    // 相同的资源将共享ProcessorSlotChain 无论在那个context中
+    // chainMap key-->资源resourceWrapper value-->ProcessorSlotChain
     private static volatile Map<ResourceWrapper, ProcessorSlotChain> chainMap
         = new HashMap<ResourceWrapper, ProcessorSlotChain>();
 
@@ -86,7 +88,7 @@ public class CtSph implements Sph {
             return asyncEntryWithNoChain(resourceWrapper, context);
         }
 
-        AsyncEntry asyncEntry = new AsyncEntry(resourceWrapper, chain, context, count, args);
+        AsyncEntry asyncEntry = new AsyncEntry(resourceWrapper, chain, context);
         try {
             chain.entry(context, resourceWrapper, null, count, prioritized, args);
             // Initiate the async context only when the entry successfully passed the slot chain.
@@ -116,33 +118,42 @@ public class CtSph implements Sph {
 
     private Entry entryWithPriority(ResourceWrapper resourceWrapper, int count, boolean prioritized, Object... args)
         throws BlockException {
+        // 从ThreadLocal中获取context
         Context context = ContextUtil.getContext();
+        // 如果context是NullContext 表示当前系统中的context已经超出阈值
+        // 即请求数量超出阈值,此时返回无需规则检测的资源操作对象
         if (context instanceof NullContext) {
             // The {@link NullContext} indicates that the amount of context has exceeded the threshold,
             // so here init the entry only. No rule checking will be done.
             return new CtEntry(resourceWrapper, null, context);
         }
 
+        // 如果context为空 则创建一个默认的
         if (context == null) {
             // Using default context.
+            // 默认名称 sentinel_default_context
             context = InternalContextUtil.internalEnter(Constants.CONTEXT_DEFAULT_NAME);
         }
 
         // Global switch is close, no rule checking will do.
+        // 如果全局开关已经关闭 则不进行任何规则检查
         if (!Constants.ON) {
             return new CtEntry(resourceWrapper, null, context);
         }
 
+        // 查找slotChain
         ProcessorSlot<Object> chain = lookProcessChain(resourceWrapper);
 
         /*
          * Means amount of resources (slot chain) exceeds {@link Constants.MAX_SLOT_CHAIN_SIZE},
          * so no rule checking will be done.
          */
+        // 如果没有找到chain 表示chain数量超出了阈值
         if (chain == null) {
             return new CtEntry(resourceWrapper, null, context);
         }
 
+        // 创建一个资源操作对象
         Entry e = new CtEntry(resourceWrapper, chain, context, count, args);
         try {
             chain.entry(context, resourceWrapper, null, count, prioritized, args);
@@ -192,12 +203,14 @@ public class CtSph implements Sph {
      * @return {@link ProcessorSlotChain} of the resource
      */
     ProcessorSlot<Object> lookProcessChain(ResourceWrapper resourceWrapper) {
+        // 从缓存中获取当前资源对应的slotChain 如果为空则利用双检查锁来创建一个slotChain
         ProcessorSlotChain chain = chainMap.get(resourceWrapper);
         if (chain == null) {
             synchronized (LOCK) {
                 chain = chainMap.get(resourceWrapper);
                 if (chain == null) {
                     // Entry size limit.
+                    // 如果chainMap超过阈值(6000) 直接返回不创建新的chain
                     if (chainMap.size() >= Constants.MAX_SLOT_CHAIN_SIZE) {
                         return null;
                     }
@@ -337,13 +350,16 @@ public class CtSph implements Sph {
     @Override
     public Entry entryWithType(String name, int resourceType, EntryType entryType, int count, Object[] args)
         throws BlockException {
+        // count值为1 表示请求增加的计数
         return entryWithType(name, resourceType, entryType, count, false, args);
     }
 
     @Override
     public Entry entryWithType(String name, int resourceType, EntryType entryType, int count, boolean prioritized,
                                Object[] args) throws BlockException {
+        // 将信息封装成资源对象
         StringResourceWrapper resource = new StringResourceWrapper(name, entryType, resourceType);
+        // 返回一个资源操作对象
         return entryWithPriority(resource, count, prioritized, args);
     }
 

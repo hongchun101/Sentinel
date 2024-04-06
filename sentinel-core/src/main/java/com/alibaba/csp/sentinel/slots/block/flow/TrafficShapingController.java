@@ -23,6 +23,7 @@ import com.alibaba.csp.sentinel.node.Node;
  * @author jialiang.linjl
  */
 public interface TrafficShapingController {
+    // 流量整形控制器
 
     /**
      * Check whether given resource entry can pass with provided count.

@@ -126,6 +126,7 @@ import java.util.Map;
  */
 @Spi(isSingleton = false, order = Constants.ORDER_NODE_SELECTOR_SLOT)
 public class NodeSelectorSlot extends AbstractLinkedProcessorSlot<Object> {
+    // 负责收集资源的路径,并将这些资源的调用路径 以树状结构存储起来 用于根据调用路径来限流降级
 
     /**
      * {@link DefaultNode}s of the same resource in different context.
@@ -153,6 +154,9 @@ public class NodeSelectorSlot extends AbstractLinkedProcessorSlot<Object> {
          * The answer is all {@link DefaultNode}s with same resource name share one
          * {@link ClusterNode}. See {@link ClusterBuilderSlot} for detail.
          */
+        // 根据上下文环境的名称获取DefaultNode
+        // 多线程环境下 每个线程对应一个context
+        // 但只要资源名相同 context名称也相同 则node相同
         DefaultNode node = map.get(context.getName());
         if (node == null) {
             synchronized (this) {
@@ -164,12 +168,14 @@ public class NodeSelectorSlot extends AbstractLinkedProcessorSlot<Object> {
                     cacheMap.put(context.getName(), node);
                     map = cacheMap;
                     // Build invocation tree
+                    // 将当前node作为环境的最后一个子节点添加进去
                     ((DefaultNode) context.getLastNode()).addChild(node);
                 }
 
             }
         }
 
+        // 将该节点设置为环境的当前节点
         context.setCurNode(node);
         fireEntry(context, resourceWrapper, node, count, prioritized, args);
     }

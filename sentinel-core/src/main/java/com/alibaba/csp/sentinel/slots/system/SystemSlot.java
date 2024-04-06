@@ -31,6 +31,7 @@ import com.alibaba.csp.sentinel.spi.Spi;
  */
 @Spi(order = Constants.ORDER_SYSTEM_SLOT)
 public class SystemSlot extends AbstractLinkedProcessorSlot<DefaultNode> {
+    // 通过系统的状态 如load1等 来控制总的入口流量
 
     @Override
     public void entry(Context context, ResourceWrapper resourceWrapper, DefaultNode node, int count,

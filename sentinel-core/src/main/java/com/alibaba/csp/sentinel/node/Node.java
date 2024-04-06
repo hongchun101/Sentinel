@@ -32,6 +32,11 @@ import com.alibaba.csp.sentinel.util.function.Predicate;
  */
 public interface Node extends OccupySupport, DebugSupport {
 
+    // Sentinel中各种种类的统计节点
+    // StatisticNode 基础的统计节点 包含秒级和分钟级两个滑动窗口结构
+    // DefaultNode 链路节点 用于统计调用链路上某个资源的数据 维持树桩结构
+    // ClusterNode 簇点 用于统计每个资源的全局数据,存放该资源的按来源区分的调用数据(类型为StatisticNode)
+    // EntranceNode 入口节点 特殊的链路节点 对应某个context入口的所有调用数据 Constants.ROOT节点也是入口节点
     /**
      * Get incoming request per minute ({@code pass + block}).
      *

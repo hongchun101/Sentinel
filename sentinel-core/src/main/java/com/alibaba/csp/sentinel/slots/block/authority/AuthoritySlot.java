@@ -33,6 +33,7 @@ import com.alibaba.csp.sentinel.spi.Spi;
  */
 @Spi(order = Constants.ORDER_AUTHORITY_SLOT)
 public class AuthoritySlot extends AbstractLinkedProcessorSlot<DefaultNode> {
+    // 根据配置的黑白名单和调用来源信息 做黑白名单控制
 
     @Override
     public void entry(Context context, ResourceWrapper resourceWrapper, DefaultNode node, int count, boolean prioritized, Object... args)
